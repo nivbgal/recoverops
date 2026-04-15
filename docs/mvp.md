@@ -14,7 +14,8 @@ Ship a working demo that makes one thing obvious:
 - evidence and policy references
 - dispute/refund email draft
 - claim status tracker
-- basic interaction without external dependencies
+- basic interaction with local sample data
+- JSON endpoint for recovery metrics and findings
 
 ## Out of Scope For First Commit
 
@@ -67,4 +68,4 @@ The first production version should become a single web app with:
 - A user can select a finding and see why it matters
 - A recovery packet can be copied or acted on
 - Dashboard metrics update when claim status changes
-- The demo works by opening `index.html`
+- The demo works through `npm run dev`

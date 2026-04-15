@@ -7,12 +7,14 @@
 - [x] Add sample recovery findings
 - [x] Add claim packet and email draft UI
 - [x] Add competition roadmap
+- [x] Convert prototype into Next.js app scaffold
+- [x] Add typed recovery engine module
+- [x] Add recovery API endpoint
 
 ## Next
 
 - [ ] Add CSV upload for invoice/vendor exports
 - [ ] Add parsing for Shopify, Stripe, FedEx/UPS, and SaaS billing CSVs
-- [ ] Extract recovery engine into a typed module
 - [ ] Add persistent local state
 - [ ] Add finding filters by category, vendor, confidence, and status
 - [ ] Add exportable claim packet

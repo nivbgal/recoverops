@@ -46,7 +46,7 @@ Primary buyer:
 
 ## Current Demo
 
-This first version is a dependency-free static app. Open `index.html` in a browser to try the dashboard.
+This version is a Next.js app with a typed recovery engine, sample findings, a dashboard, a claim packet workflow, and a JSON recovery API.
 
 It includes:
 
@@ -61,15 +61,36 @@ It includes:
 
 ```text
 .
-├── index.html
-├── styles.css
-├── app.js
+├── app/
+│   ├── api/recovery/route.ts
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/recovery-dashboard.tsx
+├── data/sample-findings.ts
+├── lib/recovery-engine.ts
+├── types/recovery.ts
 ├── docs/
-│   ├── strategy.md
-│   ├── mvp.md
+│   ├── backlog.md
 │   ├── competition-plan.md
-│   └── backlog.md
-└── README.md
+│   ├── mvp.md
+│   ├── strategy.md
+│   └── technical-plan.md
+└── package.json
+```
+
+## Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+Build and typecheck:
+
+```bash
+npm run typecheck
+npm run build
 ```
 
 ## Next Build Priorities
