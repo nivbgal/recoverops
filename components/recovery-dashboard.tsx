@@ -1,18 +1,29 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { parseSpendCsv } from "@/lib/csv";
+import { runSpendAudit } from "@/lib/detectors";
+import { clearSavedAudit, loadSavedAudit, saveAudit } from "@/lib/persistence";
 import {
   deriveRecoveryMetrics,
   formatClaimPacket,
   rankFindings
 } from "@/lib/recovery-engine";
 import type { RecoveryCategory, RecoveryFinding, RecoveryStatus } from "@/types/recovery";
+import type { ChangeEvent } from "react";
 
 type RecoveryDashboardProps = {
   initialFindings: RecoveryFinding[];
 };
 
-const categories: Array<RecoveryCategory | "all"> = ["all", "Shipping", "SaaS", "Ads", "Contract"];
+const categories: Array<RecoveryCategory | "all"> = [
+  "all",
+  "Shipping",
+  "SaaS",
+  "Ads",
+  "Contract",
+  "Refund"
+];
 
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -25,6 +36,8 @@ export function RecoveryDashboard({ initialFindings }: RecoveryDashboardProps) {
   const [category, setCategory] = useState<RecoveryCategory | "all">("all");
   const [selectedId, setSelectedId] = useState(findings[0]?.id ?? "");
   const [copied, setCopied] = useState(false);
+  const [rowsScanned, setRowsScanned] = useState(0);
+  const [importMessage, setImportMessage] = useState("Sample audit loaded. Upload CSV to run a real audit.");
 
   const metrics = useMemo(() => deriveRecoveryMetrics(findings), [findings]);
   const visibleFindings = useMemo(
@@ -33,10 +46,30 @@ export function RecoveryDashboard({ initialFindings }: RecoveryDashboardProps) {
   );
   const selected = findings.find((finding) => finding.id === selectedId) ?? visibleFindings[0] ?? findings[0];
 
+  useEffect(() => {
+    const saved = loadSavedAudit();
+    if (!saved?.length) return;
+    const ranked = rankFindings(saved);
+    setFindings(ranked);
+    setSelectedId(ranked[0].id);
+    setImportMessage("Restored saved audit from this browser.");
+  }, []);
+
+  useEffect(() => {
+    saveAudit(findings);
+  }, [findings]);
+
   function updateStatus(status: RecoveryStatus) {
     if (!selected) return;
     setFindings((current) =>
       current.map((finding) => (finding.id === selected.id ? { ...finding, status } : finding))
+    );
+  }
+
+  function updateNote(note: string) {
+    if (!selected) return;
+    setFindings((current) =>
+      current.map((finding) => (finding.id === selected.id ? { ...finding, note } : finding))
     );
   }
 
@@ -45,6 +78,61 @@ export function RecoveryDashboard({ initialFindings }: RecoveryDashboardProps) {
     await navigator.clipboard.writeText(formatClaimPacket(selected));
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1300);
+  }
+
+  function downloadPacket() {
+    if (!selected) return;
+    downloadText(
+      `${safeFileName(selected.vendor)}-claim-packet.md`,
+      [
+        "# RecoverOps Claim Packet",
+        "",
+        `Total recoverable in workspace: ${money.format(metrics.found)}`,
+        `Ready to claim: ${money.format(metrics.ready)}`,
+        `Recovered: ${money.format(metrics.recovered)}`,
+        "",
+        formatClaimPacket(selected)
+      ].join("\n")
+    );
+  }
+
+  async function loadSampleAudit() {
+    const response = await fetch("/sample-spend-export.csv");
+    const text = await response.text();
+    runCsvAudit(text, "sample-spend-export.csv");
+  }
+
+  async function uploadCsv(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    runCsvAudit(await file.text(), file.name);
+    event.target.value = "";
+  }
+
+  function runCsvAudit(csvText: string, label: string) {
+    const rows = parseSpendCsv(csvText);
+    const result = runSpendAudit(rows);
+    const nextFindings = result.findings.length > 0 ? rankFindings(result.findings) : rankFindings(initialFindings);
+
+    setRowsScanned(rows.length);
+    setFindings(nextFindings);
+    setSelectedId(nextFindings[0]?.id ?? "");
+    setCategory("all");
+    setImportMessage(
+      result.findings.length > 0
+        ? `Audited ${rows.length} rows from ${label}. Found ${result.findings.length} recoveries.`
+        : `Audited ${rows.length} rows from ${label}. No recoveries matched current rules.`
+    );
+  }
+
+  function clearWorkspace() {
+    clearSavedAudit();
+    const ranked = rankFindings(initialFindings);
+    setFindings(ranked);
+    setSelectedId(ranked[0]?.id ?? "");
+    setRowsScanned(0);
+    setCategory("all");
+    setImportMessage("Workspace reset to sample findings.");
   }
 
   function selectCategory(nextCategory: RecoveryCategory | "all") {
@@ -63,24 +151,47 @@ export function RecoveryDashboard({ initialFindings }: RecoveryDashboardProps) {
       <header className="topbar">
         <div>
           <p className="eyebrow">RecoverOps</p>
-          <h1>Find recoverable vendor spend before it becomes margin loss.</h1>
+          <h1>Upload spend exports, find recoverable vendor leakage, and generate claims.</h1>
         </div>
         <div className="topbar-actions" aria-label="Primary actions">
-          <button className="button secondary" type="button" onClick={() => setSelectedId(findings[0].id)}>
-            Analyze sample bills
+          <label className="button primary">
+            Upload CSV
+            <input accept=".csv,text/csv" className="file-input" type="file" onChange={uploadCsv} />
+          </label>
+          <button className="button secondary" type="button" onClick={loadSampleAudit}>
+            Run sample audit
           </button>
-          <button className="button primary" type="button" onClick={copyPacket}>
-            {copied ? "Copied" : "Copy claim packet"}
-          </button>
+          <a className="button secondary" href="/sample-spend-export.csv" download>
+            Download sample CSV
+          </a>
         </div>
       </header>
 
       <main className="app-shell">
+        <section className="import-panel" aria-label="Audit import controls">
+          <div>
+            <p className="eyebrow">Pilot workflow</p>
+            <h2>CSV audit workspace</h2>
+            <p>{importMessage}</p>
+          </div>
+          <div className="import-actions">
+            <button className="button secondary" type="button" onClick={downloadPacket}>
+              Download packet
+            </button>
+            <button className="button secondary" type="button" onClick={copyPacket}>
+              {copied ? "Copied" : "Copy packet"}
+            </button>
+            <button className="button secondary" type="button" onClick={clearWorkspace}>
+              Reset
+            </button>
+          </div>
+        </section>
+
         <section className="summary-grid" aria-label="Recovery metrics">
+          <Metric label="Rows scanned" value={`${rowsScanned || "sample"}`} helper="CSV lines normalized" />
+          <Metric label="Findings" value={`${findings.length}`} helper="Ranked recovery opportunities" />
           <Metric label="Recoverable found" value={money.format(metrics.found)} helper="Across current audit" />
           <Metric label="Ready to claim" value={money.format(metrics.ready)} helper="Evidence packet prepared" />
-          <Metric label="Recovered" value={money.format(metrics.recovered)} helper="Confirmed or credited" />
-          <Metric label="Avg confidence" value={`${metrics.averageConfidence}%`} helper="Across ranked findings" />
         </section>
 
         <section className="workspace">
@@ -116,6 +227,10 @@ export function RecoveryDashboard({ initialFindings }: RecoveryDashboardProps) {
                   </div>
                   <strong>{finding.vendor}</strong>
                   <p>{finding.reason}</p>
+                  <span className="queue-meta">
+                    {finding.status}
+                    {finding.note ? " - note saved" : ""}
+                  </span>
                 </button>
               ))}
             </div>
@@ -134,7 +249,7 @@ export function RecoveryDashboard({ initialFindings }: RecoveryDashboardProps) {
             <div className="packet-grid">
               <Packet label="Recoverable amount" value={money.format(selected.amount)} />
               <Packet label="Confidence" value={`${selected.confidence}%`} />
-              <Packet label="Recommended action" value={selected.action} />
+              <Packet label="Detector" value={selected.detector ?? selected.action} />
             </div>
 
             <div className="two-column">
@@ -151,6 +266,17 @@ export function RecoveryDashboard({ initialFindings }: RecoveryDashboardProps) {
                 <textarea aria-label="Claim draft" readOnly rows={9} value={selected.message} />
               </article>
             </div>
+
+            <article className="section-block note-block">
+              <h3>Operator note</h3>
+              <textarea
+                aria-label="Operator note"
+                placeholder="Add claim context, vendor replies, or next steps."
+                rows={4}
+                value={selected.note ?? ""}
+                onChange={(event) => updateNote(event.target.value)}
+              />
+            </article>
 
             <div className="action-row">
               <button className="button secondary" type="button" onClick={() => updateStatus("ready")}>
@@ -187,4 +313,18 @@ function Packet({ label, value }: { label: string; value: string }) {
       <strong>{value}</strong>
     </article>
   );
+}
+
+function downloadText(fileName: string, text: string) {
+  const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(href);
+}
+
+function safeFileName(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "recoverops";
 }

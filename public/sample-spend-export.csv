@@ -1,0 +1,8 @@
+id,date,vendor,category,description,amount,quantity,status,contractRate,billedRate,activeSeats,usedSeats,inventoryStatus
+ship-1001,2026-03-03,Northstar Freight,Shipping,Zone 4 commercial parcel surcharge,9200,400,paid,18,41,,,
+ship-1002,2026-03-09,Northstar Freight,Shipping,Zone 5 commercial parcel surcharge,7800,300,paid,20,46,,,
+saas-2001,2026-03-01,StackSeat,SaaS,Annual workspace seats,12200,,active,,,61,43,
+ads-3001,2026-03-20,Meta Ads,Ads,SKU-ORBIT retargeting campaign,12175,,active,,,,,out_of_stock
+refund-4001,2026-03-14,BrightBox Fulfillment,Refund,pending credit for March outage,22400,,credit_due,,,,,
+dup-5001,2026-03-11,Clipper Creative,Contract,March launch design retainer,6400,,paid,,,,,
+dup-5002,2026-03-12,Clipper Creative,Contract,March launch design retainer,6400,,paid,,,,,

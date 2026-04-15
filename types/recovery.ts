@@ -1,4 +1,4 @@
-export type RecoveryCategory = "Shipping" | "SaaS" | "Ads" | "Contract";
+export type RecoveryCategory = "Shipping" | "SaaS" | "Ads" | "Contract" | "Refund";
 
 export type RecoveryStatus = "new" | "ready" | "submitted" | "recovered";
 
@@ -13,6 +13,9 @@ export type RecoveryFinding = {
   action: string;
   evidence: string[];
   message: string;
+  detector?: string;
+  note?: string;
+  sourceRows?: string[];
 };
 
 export type RecoveryMetrics = {
@@ -29,4 +32,27 @@ export type RecoveryPacket = {
   action: string;
   evidence: string[];
   message: string;
+};
+
+export type SpendCategory = RecoveryCategory | "Other";
+
+export type SpendRow = {
+  id: string;
+  date: string;
+  vendor: string;
+  category: SpendCategory;
+  description: string;
+  amount: number;
+  quantity?: number;
+  status?: string;
+  contractRate?: number;
+  billedRate?: number;
+  activeSeats?: number;
+  usedSeats?: number;
+  inventoryStatus?: string;
+};
+
+export type AuditResult = {
+  rows: SpendRow[];
+  findings: RecoveryFinding[];
 };

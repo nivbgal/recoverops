@@ -48,14 +48,24 @@ export function formatClaimPacket(finding: RecoveryFinding): string {
   const packet = createRecoveryPacket(finding);
   return [
     `Recovery: ${packet.title}`,
-    `Recoverable amount: ${packet.amount}`,
+    `Recoverable amount: ${currency(packet.amount)}`,
     `Confidence: ${packet.confidence}%`,
     `Recommended action: ${packet.action}`,
+    finding.detector ? `Detector: ${finding.detector}` : "",
+    finding.note ? `Operator note: ${finding.note}` : "",
     "",
     "Evidence:",
     ...packet.evidence.map((item) => `- ${item}`),
     "",
     "Draft:",
     packet.message
-  ].join("\n");
+  ].filter(Boolean).join("\n");
+}
+
+function currency(amount: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(amount);
 }

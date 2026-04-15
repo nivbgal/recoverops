@@ -52,9 +52,11 @@ It includes:
 
 - recovery KPI dashboard
 - prioritized leak queue
-- sample vendor findings
+- CSV upload and sample spend export
+- browser-based recovery detectors
 - evidence-backed recovery packet
 - dispute email draft
+- saved notes and claim status in the browser
 - lightweight status workflow
 
 ## Repository Structure
@@ -68,7 +70,11 @@ It includes:
 │   └── page.tsx
 ├── components/recovery-dashboard.tsx
 ├── data/sample-findings.ts
+├── lib/csv.ts
+├── lib/detectors.ts
+├── lib/persistence.ts
 ├── lib/recovery-engine.ts
+├── public/sample-spend-export.csv
 ├── types/recovery.ts
 ├── docs/
 │   ├── backlog.md
@@ -95,8 +101,8 @@ npm run build
 
 ## Next Build Priorities
 
-1. Add invoice/CSV upload and parsing
-2. Add deterministic recovery scoring engine
-3. Add persistent claim state
-4. Add Perplexity Computer workflow notes for vendor policy research and claim filing
+1. Add richer CSV mapping and validation feedback
+2. Add SQLite or Postgres persistence for shared pilot workspaces
+3. Add Perplexity Computer workflow notes for vendor policy research and claim filing
+4. Add email export/send integration
 5. Run pilots with 10 to 20 ecommerce/startup operators

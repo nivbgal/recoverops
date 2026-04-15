@@ -10,14 +10,19 @@
 - [x] Convert prototype into Next.js app scaffold
 - [x] Add typed recovery engine module
 - [x] Add recovery API endpoint
+- [x] Add CSV upload and browser parser
+- [x] Add duplicate, SaaS, shipping, refund, and stockout detectors
+- [x] Add browser persistence for statuses and notes
+- [x] Add downloadable claim packet
+- [x] Add sample spend export for demos
 
 ## Next
 
-- [ ] Add CSV upload for invoice/vendor exports
-- [ ] Add parsing for Shopify, Stripe, FedEx/UPS, and SaaS billing CSVs
-- [ ] Add persistent local state
-- [ ] Add finding filters by category, vendor, confidence, and status
-- [ ] Add exportable claim packet
+- [ ] Add CSV validation errors and column mapping UI
+- [ ] Add vendor-specific parsers for Shopify, Stripe, FedEx/UPS, and SaaS billing exports
+- [ ] Add IndexedDB or server persistence for larger files
+- [ ] Add finding filters by category, vendor, confidence, status, and detector
+- [ ] Add bundled multi-finding export packet
 
 ## Pilot
 
