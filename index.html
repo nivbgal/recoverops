@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RecoverOps</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">RecoverOps</p>
+        <h1>Find recoverable vendor spend before it becomes margin loss.</h1>
+      </div>
+      <div class="topbar-actions" aria-label="Primary actions">
+        <button id="simulateUpload" class="button secondary" type="button">Analyze sample bills</button>
+        <button id="copyPacket" class="button primary" type="button">Copy claim packet</button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="summary-grid" aria-label="Recovery metrics">
+        <article class="metric">
+          <span class="metric-label">Recoverable found</span>
+          <strong id="metricFound">$0</strong>
+          <small>Across current audit</small>
+        </article>
+        <article class="metric">
+          <span class="metric-label">Ready to claim</span>
+          <strong id="metricReady">$0</strong>
+          <small>Evidence packet prepared</small>
+        </article>
+        <article class="metric">
+          <span class="metric-label">Recovered</span>
+          <strong id="metricRecovered">$0</strong>
+          <small>Confirmed or credited</small>
+        </article>
+        <article class="metric">
+          <span class="metric-label">Time to first finding</span>
+          <strong>4m</strong>
+          <small>Target for pilot audits</small>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <aside class="queue-panel" aria-label="Recovery queue">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Priority queue</p>
+              <h2>Leak findings</h2>
+            </div>
+            <select id="categoryFilter" aria-label="Filter by category">
+              <option value="all">All categories</option>
+              <option value="Shipping">Shipping</option>
+              <option value="SaaS">SaaS</option>
+              <option value="Ads">Ads</option>
+              <option value="Contract">Contract</option>
+            </select>
+          </div>
+          <div id="findingList" class="finding-list"></div>
+        </aside>
+
+        <section class="detail-panel" aria-live="polite">
+          <div class="detail-header">
+            <div>
+              <p id="selectedCategory" class="eyebrow">Recovery packet</p>
+              <h2 id="selectedTitle">Select a finding</h2>
+              <p id="selectedReason" class="detail-subtitle">Run the sample audit to see detected recoveries.</p>
+            </div>
+            <span id="selectedStatus" class="status-pill">new</span>
+          </div>
+
+          <div class="packet-grid">
+            <article class="packet-block">
+              <span class="block-label">Recoverable amount</span>
+              <strong id="selectedAmount">$0</strong>
+            </article>
+            <article class="packet-block">
+              <span class="block-label">Confidence</span>
+              <strong id="selectedConfidence">0%</strong>
+            </article>
+            <article class="packet-block">
+              <span class="block-label">Recommended action</span>
+              <strong id="selectedAction">Analyze bills</strong>
+            </article>
+          </div>
+
+          <div class="two-column">
+            <article class="section-block">
+              <h3>Evidence</h3>
+              <ul id="evidenceList" class="evidence-list"></ul>
+            </article>
+            <article class="section-block">
+              <h3>Claim draft</h3>
+              <textarea id="messageDraft" rows="9" aria-label="Claim draft"></textarea>
+            </article>
+          </div>
+
+          <div class="action-row">
+            <button class="button secondary" data-status="ready" type="button">Mark ready</button>
+            <button class="button secondary" data-status="submitted" type="button">Mark submitted</button>
+            <button class="button primary" data-status="recovered" type="button">Mark recovered</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
