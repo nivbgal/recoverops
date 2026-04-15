@@ -53,37 +53,12 @@ It includes:
 - recovery KPI dashboard
 - prioritized leak queue
 - CSV upload and sample spend export
+- column detection, validation, and manual mapping for messy exports
 - browser-based recovery detectors
 - evidence-backed recovery packet
 - dispute email draft
 - saved notes and claim status in the browser
 - lightweight status workflow
-
-## Repository Structure
-
-```text
-.
-├── app/
-│   ├── api/recovery/route.ts
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/recovery-dashboard.tsx
-├── data/sample-findings.ts
-├── lib/csv.ts
-├── lib/detectors.ts
-├── lib/persistence.ts
-├── lib/recovery-engine.ts
-├── public/sample-spend-export.csv
-├── types/recovery.ts
-├── docs/
-│   ├── backlog.md
-│   ├── competition-plan.md
-│   ├── mvp.md
-│   ├── strategy.md
-│   └── technical-plan.md
-└── package.json
-```
 
 ## Local Development
 
@@ -101,7 +76,7 @@ npm run build
 
 ## Next Build Priorities
 
-1. Add richer CSV mapping and validation feedback
+1. Add vendor-specific templates for Shopify, Stripe, FedEx/UPS, and SaaS exports
 2. Add SQLite or Postgres persistence for shared pilot workspaces
 3. Add Perplexity Computer workflow notes for vendor policy research and claim filing
 4. Add email export/send integration

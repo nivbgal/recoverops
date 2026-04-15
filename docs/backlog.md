@@ -15,10 +15,10 @@
 - [x] Add browser persistence for statuses and notes
 - [x] Add downloadable claim packet
 - [x] Add sample spend export for demos
+- [x] Add CSV validation errors and column mapping UI
 
 ## Next
 
-- [ ] Add CSV validation errors and column mapping UI
 - [ ] Add vendor-specific parsers for Shopify, Stripe, FedEx/UPS, and SaaS billing exports
 - [ ] Add IndexedDB or server persistence for larger files
 - [ ] Add finding filters by category, vendor, confidence, status, and detector
